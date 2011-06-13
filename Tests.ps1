@@ -5,7 +5,14 @@ import-module .\PsJson\PsJson.psm1 -Force
 
 test-spec {
     "When converting from JSON"
-	$json = "{ ""foo"": ""bar"" }"
-    $result = convertfrom-json $json
+    $json = "{ ""foo"": ""bar"" }"    
+    $result = convertfrom-json $json    
     $result.foo | should be_equal "bar"
+}
+
+test-spec {
+    "When converting to JSON"
+    $data = @{"foo" = "bar"}
+    $result = convertto-json $data    
+    $result | should be_equal "{""foo"":""bar""}"
 }

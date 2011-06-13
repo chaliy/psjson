@@ -8,9 +8,33 @@ function ConvertFrom-JSON {
 Param(
     [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
     $JSON
+)     
+	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll
+	[JsonParser.JsonParser]::FromJson($JSON)
+<#
+.Synopsis
+    [TBD]
+	
+.Example
+    [TBD]
+
+#>
+}
+function ConvertTo-JSON {
+[CmdletBinding()]
+Param(
+    [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
+    $Data
 )
-	Add-Type -Path .\Newtonsoft.Json.Net35.dll
-	[JsonParser.JsonParser]::FromJson($json)
+	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll    
+    #$bar = new-object "System.Collections.Generic.Dictionary``2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+    $DataToConvert = new-object "System.Collections.Generic.Dictionary``2[[System.String],[System.Object]]"
+    
+    foreach($key in $Data.Keys){
+        $DataToConvert.Add($key, $Data[$key])		
+	}
+    
+	[JsonParser.JsonParser]::ToJson($DataToConvert)
 <#
 .Synopsis
     [TBD]
