@@ -16,3 +16,10 @@ test-spec {
     $result = convertto-json $data    
     $result | should be_equal "{""foo"":""bar""}"
 }
+
+test-spec {
+    "When converting to JSON with child objects"    
+    $data = @{"foo" = "bar"; "child" = @{"coo" = "roo" }}
+    $result = convertto-json $data    
+    $result | should be_equal "{""foo"":""bar"",""child"":{""coo"":""roo""}}"
+}

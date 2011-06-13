@@ -27,13 +27,24 @@ Param(
     $Data
 )
 	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll    
-    #$bar = new-object "System.Collections.Generic.Dictionary``2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
-    $DataToConvert = new-object "System.Collections.Generic.Dictionary``2[[System.String],[System.Object]]"
+        
+    function ToDictionary($inp){
     
-    foreach($key in $Data.Keys){
-        $DataToConvert.Add($key, $Data[$key])		
-	}
+        #$outp = new-object "System.Collections.Generic.Dictionary``2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+        $outp = new-object "System.Collections.Generic.Dictionary``2[[System.String],[System.Object]]"
     
+        foreach($key in $inp.Keys){
+            $item = $inp[$key]
+            if ($item -is [Collections.Hashtable]){
+                $item = ToDictionary($item)
+            }
+            $outp.Add($key, $item)		
+    	}
+        
+        $outp
+    }
+    
+    $DataToConvert = ToDictionary($Data)    
 	[JsonParser.JsonParser]::ToJson($DataToConvert)
 <#
 .Synopsis
