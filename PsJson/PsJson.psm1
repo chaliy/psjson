@@ -24,13 +24,12 @@ function ConvertTo-JSON {
 [CmdletBinding()]
 Param(
     [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
-    $Data
+    $InputObject
 )
 	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll    
         
     function ToDictionary($inp){
-    
-        #$outp = new-object "System.Collections.Generic.Dictionary``2[[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]"
+            
         $outp = new-object "System.Collections.Generic.Dictionary``2[[System.String],[System.Object]]"
     
         foreach($key in $inp.Keys){
@@ -44,14 +43,25 @@ Param(
         $outp
     }
     
-    $DataToConvert = ToDictionary($Data)    
+    $DataToConvert = ToDictionary($InputObject)    
 	[JsonParser.JsonParser]::ToJson($DataToConvert)
 <#
 .Synopsis
     [TBD]
 	
-.Example
-    [TBD]
+.Example    
+    ConvertTo-JSON @{"foo" = "bar"}
 
+    Description
+    -----------
+    Converts hastable to JSON string
+    
+.Example    
+    
+    ConvertTo-JSON @{"foo" = "bar"; "child" = @{"coo" = "roo" }}
+
+    Description
+    -----------
+    Converts hastable with child objects to JSON string
 #>
 }
