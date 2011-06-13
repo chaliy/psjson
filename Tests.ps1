@@ -11,6 +11,13 @@ test-spec {
 }
 
 test-spec {
+    "When converting from JSON with child"
+    $json = "{ ""foo"": ""bar"", ""child"":{""coo"":""roo""} }"    
+    $result = convertfrom-json $json    
+    $result.child.coo | should be_equal "roo"
+}
+
+test-spec {
     "When converting to JSON"
     $data = @{"foo" = "bar"}
     $result = convertto-json $data    
