@@ -3,30 +3,30 @@
 ##
 
 #requires -Version 2.0
-function ConvertFrom-JSON {
+function ConvertFrom-Json {
 [CmdletBinding()]
 Param(
     [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
     $JSON
 )     
-	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll
-	[JsonParser.JsonParser]::FromJson($JSON)
+    Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll
+    [JsonParser.JsonParser]::FromJson($JSON)
 <#
 .Synopsis
-    [TBD]
+    Converts input JSON string to powershell objects
 	
 .Example
     [TBD]
 
 #>
 }
-function ConvertTo-JSON {
+function ConvertTo-Json {
 [CmdletBinding()]
 Param(
     [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
     $InputObject
 )
-	Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll    
+    Add-Type -Path $PSScriptRoot\JsonParser.Net35.dll    
         
     function ToDictionary($inp){
             
@@ -47,7 +47,7 @@ Param(
 	[JsonParser.JsonParser]::ToJson($DataToConvert)
 <#
 .Synopsis
-    [TBD]
+    Converts input dictionary to JSON object
 	
 .Example    
     ConvertTo-JSON @{"foo" = "bar"}
@@ -64,4 +64,59 @@ Param(
     -----------
     Converts hastable with child objects to JSON string
 #>
+}
+
+function Format-Json {
+[CmdletBinding()]
+Param(
+    [Parameter(ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$true, Mandatory=$true, Position=0)]    
+    [String]$Input
+)
+
+    function PrintJson($Obj, $Ident = ""){
+        $Ident = $Ident + "  "
+                    
+        foreach($key in $Obj.Keys){
+            $val = $Obj.$key
+
+            if ($val -eq $Null){
+                continue
+            }
+
+            Write-Host $Ident -NoNewLine
+            if ($val.Keys -ne $NULL){
+                Write-Host $key -ForegroundColor White -NoNewLine
+                Write-Host " : " -ForegroundColor Gray -NoNewLine
+                Write-Host "{" -ForegroundColor Yellow
+                PrintJson $val $Ident
+                Write-Host "$Ident}" -ForegroundColor Yellow       
+            }
+            elseif ($val -is [System.Collections.ICollection]) {            
+                Write-Host $key -ForegroundColor White -NoNewLine
+                Write-Host " : " -ForegroundColor Gray -NoNewLine
+                Write-Host "[" -ForegroundColor Yellow  -NoNewLine
+                foreach($child in $val){
+                    if ($child -ne ""){
+                        Write-Host "{" -ForegroundColor Yellow
+                        PrintJson $child $Ident
+                        Write-Host "$Ident}," -ForegroundColor Yellow  -NoNewLine
+                    }
+                }
+                Write-Host "]" -ForegroundColor Yellow
+            }
+            else {
+                Write-Host $key -ForegroundColor White -NoNewLine
+                Write-Host " : " -ForegroundColor Gray -NoNewLine
+                Write-Host $val -ForegroundColor White -NoNewLine 
+                Write-Host "," -ForegroundColor Gray
+            }
+        }    
+    }
+
+    Add-Type -Path PsJson\JsonParser.Net35.dll
+    $Obj = [JsonParser.JsonParser]::FromJson($Input)    
+
+    Write-Host "{" -ForegroundColor Yellow
+    PrintJson $Obj
+    Write-Host "}" -ForegroundColor Yellow       
 }
